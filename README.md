@@ -4,6 +4,6 @@ This is a library file that I've written for C++, Windows, Visual Studio. Feel f
 
 It's pretty basic so far but I'll keep updating it as I go.
 
-If you have better solutions than already existing ones, you're also free to modify the existing code. For example ``` c++ void ping_url(const string& url) ``` function, uses `system()` function, which many consider as evil.
+If you have better solutions than already existing ones, you're also free to modify the existing code. For example `void ping_url(const string& url)` function, uses `system()` function, which many consider as evil.
 
 That's it for now. Go ahead, take a look, have fun.
