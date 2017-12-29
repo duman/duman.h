@@ -196,7 +196,20 @@ void open_url(LPCSTR url)
 	ShellExecute(0, 0, url, 0, 0 , SW_SHOW);
 }
 
-// Format: 'sinput(true) to display ****'
+/* Format: 'sinput(true) to display ****'
+EXAMPLE CODE:
+
+int main()
+{
+	const auto visible_password = sinput(false);
+	const auto masked_password = sinput(true);
+	cout << "Value of visible password = " << visible_password << "\n";
+	cout << "Value of masked password  = " << masked_password << "\n";
+	any_to_exit(0, true);
+}
+
+ninput stands for number input.
+*/
 string sinput(const bool show_asterisk)
 {
 	const char backspace_key = 8;
