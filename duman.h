@@ -236,60 +236,6 @@ string sinput(const bool show_asterisk)
 	return sinput_field;
 }
 
-/* Format: 'ninput(true) to display ****'
-EXAMPLE CODE:
-
-int main()
-{
-	const auto test = ninput(false);
-	const auto test2 = 3;
-	cout << "Value of test  = " << test << "\n";
-	cout << "Value of test2 = " << test2 << "\n";
-	cout << "Value of test + test2 = " << test + test2 << "\n";
-	any_to_exit(0, true);
-}
-
-ninput stands for number input.
-*/
-double ninput(const bool show_asterisk)
-{
-	const char backspace_key = 8;
-	const char enter_key = 13;
-
-	string sinput_field;
-	unsigned char ch = 0;
-
-	DWORD con_mode;
-	DWORD dw_read;
-
-	const auto h_in = GetStdHandle(STD_INPUT_HANDLE);
-
-	GetConsoleMode(h_in, &con_mode);
-	SetConsoleMode(h_in, con_mode & ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT));
-
-	while (ReadConsoleA(h_in, &ch, 1, &dw_read, nullptr) && ch != enter_key)
-	{
-		if (ch == backspace_key)
-		{
-			if (sinput_field.length() != 0)
-			{
-				cout << "\b \b";
-				sinput_field.resize(sinput_field.length() - 1);
-			}
-		}
-		else
-		{
-			sinput_field += ch;
-			if (show_asterisk)
-				cout << '*';
-			else
-				cout << ch;
-		}
-	}
-	cout << endl;
-	return stod(sinput_field);
-}
-
 // Format: "string_analyzer_eng("Your string")"
 void string_analyzer_eng(string value)
 {
