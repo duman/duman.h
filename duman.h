@@ -201,7 +201,7 @@ EXAMPLE CODE:
 
 int main()
 {
-	const auto visible_password = sinput(false);
+	const auto visible_password = sinput(false); // You can also just type sinput();
 	const auto masked_password = sinput(true);
 	cout << "Value of visible password = " << visible_password << "\n";
 	cout << "Value of masked password  = " << masked_password << "\n";
@@ -210,7 +210,7 @@ int main()
 
 ninput stands for number input.
 */
-string sinput(const bool show_asterisk)
+string sinput(const char to_display = '*', const bool show_asterisk = false)
 {
 	const char backspace_key = 8;
 	const char enter_key = 13;
@@ -240,7 +240,7 @@ string sinput(const bool show_asterisk)
 		{
 			sinput_field += ch;
 			if (show_asterisk)
-				cout << '*';
+				cout << to_display;
 			else
 				cout << ch;
 		}
@@ -254,7 +254,7 @@ EXAMPLE CODE:
 
 int main()
 {
-	const auto test = ninput(false);
+	const auto test = ninput(false); // You can also just type ninput();
 	const auto test2 = 3;
 	cout << "Value of test  = " << test << "\n";
 	cout << "Value of test2 = " << test2 << "\n";
@@ -264,7 +264,7 @@ int main()
 
 ninput stands for number input.
 */
-double ninput(const bool show_asterisk)
+double ninput(const char to_display = '*', const bool show_asterisk = false)
 {
 	const char backspace_key = 8;
 	const char enter_key = 13;
@@ -294,7 +294,7 @@ double ninput(const bool show_asterisk)
 		{
 			sinput_field += ch;
 			if (show_asterisk)
-				cout << '*';
+				cout << to_display;
 			else
 				cout << ch;
 		}
