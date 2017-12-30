@@ -6,8 +6,13 @@
 #include <Windows.h>
 #include <sapi.h>
 #include <string>
+#include <vector>
+#include <algorithm>
 #include <ctype.h>
 #include <wininet.h>
+#include <random>
+#include <cstdlib>
+#include <ctime>
 #include <chrono>
 #include <iomanip>
 #include <experimental/filesystem>
@@ -245,7 +250,7 @@ string sinput(const char to_display = '*', const bool show_asterisk = false)
 				cout << ch;
 		}
 	}
-	cout << endl;
+	cout << "\n";
 	return sinput_field;
 }
 
@@ -299,7 +304,7 @@ double ninput(const char to_display = '*', const bool show_asterisk = false)
 				cout << ch;
 		}
 	}
-	cout << endl;
+	cout << "\n";
 	return stod(sinput_field);
 }
 
@@ -349,7 +354,7 @@ void string_analyzer_eng(string value)
 		cout << "Error: 0001A, send this error code to your system administrator.\n";
 		cout << "\nPress q to end the program.";
 		key_to_exit(200, 'q', 1, false);
-	}
+	} const auto dsa_letters = dsa_uppercase_count + dsa_lowercase_count;
 	cout << "-----------------\n";
 	cout << "Analyzed string  : " << value << "\n";
 	cout << "-----------------\n";
@@ -359,6 +364,7 @@ void string_analyzer_eng(string value)
 	cout << "Uppercase letters: " << dsa_uppercase_count << "\n";
 	cout << "Lowercase letters: " << dsa_lowercase_count << "\n";
 	cout << "-----------------\n";
+	cout << "Letter           : " << dsa_letters << "\n";
 	cout << "Digit            : " << dsa_digits << "\n";
 	cout << "Special Character: " << dsa_symbols << "\n";
 	cout << "-----------------\n";
@@ -390,6 +396,181 @@ void binary_to_decimal(__int64 binary_number)
 		base = base*2;
 	}
 	cout << decimal_value << "\n";
+}
+
+void to_clipboard(const string& s){
+	OpenClipboard(0);
+	EmptyClipboard();	
+	HGLOBAL hg=GlobalAlloc(GMEM_MOVEABLE,s.size()+1);
+	if (!hg){
+		CloseClipboard();
+		return;
+	}
+	memcpy(GlobalLock(hg),s.c_str(),s.size()+1);
+	GlobalUnlock(hg);
+	SetClipboardData(CF_TEXT,hg);
+	CloseClipboard();
+	GlobalFree(hg);
+}
+
+// Format: ''
+int password_score(string value)
+{
+	auto dsa_vowels = 0;
+	auto dsa_consonants = 0;
+	auto dsa_digits = 0;
+	auto dsa_symbols = 0;
+	auto dsa_lowercase_count = 0;
+	auto dsa_uppercase_count = 0;
+
+	for (size_t i = 0; i < value.size(); i++)
+	{
+		if (value[i] >= 48 && value[i] <= 57)
+		{
+			dsa_digits++;
+			continue;
+		}
+		if(!(value[i] >= 65 && value[i] <= 90) && !(value[i] >= 97 && value[i] <= 122) && !(value[i] >= 48 && value[i] <= 57))
+		{
+			dsa_symbols++;
+			continue;
+		}
+		if(value[i] >= 65 && value[i] <= 90)
+		{
+			dsa_uppercase_count++;
+		}
+		if(value[i] >= 97 && value[i] <= 122)
+		{
+			dsa_lowercase_count++;
+		}
+		if (value[i] == 'a' || value[i] == 'e' || value[i] == 'u' ||
+			value[i] == 'o' || value[i] == 'i' || value[i] == 'A' ||
+			value[i] == 'E' || value[i] == 'U' || value[i] == 'O' ||
+			value[i] == 'I')
+		{
+			dsa_vowels++;
+		}
+		else
+			dsa_consonants++;
+	}
+
+	const auto dsa_letters = dsa_uppercase_count + dsa_lowercase_count;
+	const auto dsa_total_length = dsa_letters + dsa_digits + dsa_symbols;
+
+	bool has_uppercase = false;
+	bool has_lowercase = false;
+	bool has_digits = false;
+	bool has_symbols = false;
+	bool length_is_greater_than_eight = false;
+	auto amount_of_correct_stuff = 0;
+
+	auto dsa_total_score = 0; // 5~N0v{2a
+	dsa_total_score += dsa_total_length * 4;
+	if(dsa_uppercase_count > 0)
+	{
+		dsa_total_score += (dsa_total_length - dsa_uppercase_count) * 2;
+		has_uppercase = true;
+		amount_of_correct_stuff++;
+	}
+	if(dsa_lowercase_count > 0)
+	{
+		dsa_total_score += (dsa_total_length - dsa_lowercase_count) * 2;
+		has_lowercase = true;
+		amount_of_correct_stuff++;
+	}
+	if(dsa_digits > 0)
+	{
+		dsa_total_score += dsa_digits * 4;
+		has_digits = true;
+		amount_of_correct_stuff++;
+	}
+	if(dsa_symbols > 0)
+	{
+		dsa_total_score += dsa_symbols * 6;
+		has_symbols = true;
+		amount_of_correct_stuff++;
+	}
+	if(dsa_total_length >= 8)
+	{
+		length_is_greater_than_eight = true;
+		amount_of_correct_stuff++;
+	}
+	if(length_is_greater_than_eight)
+		dsa_total_score += amount_of_correct_stuff * 2;
+	if(dsa_total_score > 100)
+		dsa_total_score = 100;
+
+	return dsa_total_score;
+}
+
+// Format: 'string password = password_generator(50, true, true);'
+string password_generator(const int length_of_password = 12, bool enable_symbols = false, bool copy_to_clipboard = false)
+{
+	vector<char> password;
+	srand (static_cast<unsigned int>(time(nullptr)));
+
+	//generates lowercase letters
+	for(auto c = 1; c <= length_of_password; c = c + 4)
+	{
+		const auto v1 = rand() % 26;
+		password.push_back(v1 + 'a');
+	}
+
+	//generates uppercase letters
+	for(auto g = 3; g <= length_of_password; g = g + 4)
+	{
+		const auto v2 = rand() % 26;
+		password.push_back(v2 + 'A');
+	}
+
+	//generates numbers
+	for(auto k = 0; k <= length_of_password; k = k + 2)
+	{
+		const auto v3 = rand() % 10;
+		password.push_back(v3 + '0');
+	}
+
+	if(enable_symbols)
+	{
+		//generates symbols
+		for(auto g = 1; g <= length_of_password; g = g + 4)
+		{
+			const auto choice = rand() % 3;
+			
+			if(choice == 0)
+			{
+				const auto v4 = rand() % 14;
+				password.push_back(v4 + '!');
+			}
+
+			if(choice == 1)
+			{
+				const auto v5 = rand() % 5;
+				password.push_back(v5 + '[');
+			}
+
+			if(choice == 2)
+			{
+				const auto v6 = rand() % 4;
+				password.push_back(v6 + '{');
+			}
+		}
+	}
+
+	random_device r;
+	shuffle(password.begin(), password.end(), default_random_engine(r()));
+
+	string returning_password;
+
+	for(auto i = 0; i < length_of_password; i++)
+	{
+		returning_password.push_back(password[i]);
+	}
+
+	if(copy_to_clipboard)
+		to_clipboard(returning_password);
+
+	return returning_password;
 }
 
 #endif
