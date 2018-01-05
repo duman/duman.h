@@ -3,7 +3,6 @@
 
 #include "stdafx.h"
 #include <conio.h>
-#include <Windows.h>
 #include <sapi.h>
 #include <string>
 #include <vector>
@@ -16,6 +15,8 @@
 #include <chrono>
 #include <iomanip>
 #include <experimental/filesystem>
+#include <Windows.h>
+#include <ShellAPI.h>
 #pragma comment(lib, "Wininet")
 #define VARIABLE_NAME(variable) (string)#variable
 namespace fs = std::experimental::filesystem;
