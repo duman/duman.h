@@ -17,10 +17,37 @@
 #include <experimental/filesystem>
 #include <Windows.h>
 #include <ShellAPI.h>
+#include <functional>
+#include <future>
 #pragma comment(lib, "Wininet")
 #define VARIABLE_NAME(variable) (string)#variable
 namespace fs = std::experimental::filesystem;
 using namespace std;
+
+// Usage: timer timer_1(time_in_milliseconds, true_if_async, &function_name, argument_1, arg_2, ...); true makes it multithreaded
+class timer
+{
+public:
+    template <class Callable, class... Arguments>
+    timer(int after, const bool async, Callable&& f, Arguments&&... args)
+    {
+        std::function<typename std::result_of<Callable(Arguments...)>::type()> task(std::bind(std::forward<Callable>(f), std::forward<Arguments>(args)...));
+
+        if (async)
+        {
+            std::thread([after, task]()
+			{
+                std::this_thread::sleep_for(std::chrono::milliseconds(after));
+                task();
+            }).detach();
+        }
+        else
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(after));
+            task();
+        }
+    }
+};
 
 template <typename T>
 // Format: 'delay milliseconds, quit character, exit value'
@@ -126,11 +153,20 @@ string get_file_name(const string& s) {
 // Creates a FTP connection and allows you to upload a single file
 void upload_single_file(const LPCSTR url, const LPCSTR ftp_username, const LPCSTR ftp_password, const LPCSTR local_file_location, const LPCSTR remote_file_location)
 {
+	const auto file_name = fs::path(local_file_location).filename();
+	const auto file_size = get_file_size(local_file_location);
+
+	if (file_size < 0)
+	{
+		cout << "File doesn't exist or path is wrong!\n";
+		cout << "Please check and try again.\n";
+		esc_to_exit(true);
+	}
+
 	const auto h_internet = InternetOpen(NULL, INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
 	auto start = chrono::steady_clock::now();
 	const auto h_ftp_session = InternetConnect(h_internet, url, INTERNET_DEFAULT_FTP_PORT, ftp_username, ftp_password, INTERNET_SERVICE_FTP, INTERNET_FLAG_PASSIVE, 0);
-	const auto file_name = fs::path(local_file_location).filename();
-	const auto file_size = get_file_size(local_file_location);
+
 	if (!h_ftp_session)
 	{
 		cout << "Connection to " << url << " FTP server(s) is failed!\n";
@@ -177,9 +213,25 @@ void upload_single_file(const LPCSTR url, const LPCSTR ftp_username, const LPCST
 	cout << "------------------------------------\n";
 }
 
-// Format: 'L"Speak whatever is written here"'
-bool text_to_speech(LPCWSTR sentence)
+// convert string to LPCWSTR
+wstring s2ws(const string& s)
 {
+    int len;
+    int slength = (int)s.length() + 1;
+    len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0); 
+    wchar_t* buf = new wchar_t[len];
+    MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
+    wstring r(buf);
+    delete[] buf;
+    return r;
+}
+
+// Format: 'L"Speak whatever is written here"'
+bool text_to_speech(string input_text)
+{
+	wstring stemp = s2ws(input_text);
+	LPCWSTR sentence = stemp.c_str();
+
 	ISpVoice * pVoice = NULL;
 
 	if (FAILED(::CoInitialize(NULL)))
@@ -188,7 +240,7 @@ bool text_to_speech(LPCWSTR sentence)
 	HRESULT hr = CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void **)&pVoice);
 	if (SUCCEEDED(hr))
 	{
-		hr = pVoice->Speak(sentence, 0, NULL);
+		hr = pVoice->Speak(sentence, SPF_IS_XML, NULL);
 		pVoice->Release();
 		pVoice = NULL;
 	}
