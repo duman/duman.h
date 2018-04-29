@@ -7,8 +7,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include <ctype.h>
-#include <wininet.h>
+#include <cctype>
+#include <WinInet.h>
 #include <random>
 #include <cstdlib>
 #include <ctime>
@@ -16,7 +16,7 @@
 #include <iomanip>
 #include <experimental/filesystem>
 #include <Windows.h>
-#include <ShellAPI.h>
+#include <shellapi.h>
 #include <functional>
 #include <future>
 #include <cassert>
@@ -26,6 +26,110 @@
 #define VARIABLE_NAME(variable) (string)#variable
 namespace fs = std::experimental::filesystem;
 using namespace std;
+
+int response_code(const string& url)
+{
+	const auto h_open = InternetOpenA("DumanSTUDIOS", INTERNET_OPEN_TYPE_DIRECT, nullptr, nullptr, 0);
+	const auto h_file = InternetOpenUrlA(h_open, url.c_str(), nullptr, 0,INTERNET_FLAG_RELOAD, 0);
+	char response_text[256];
+	DWORD response_text_size = sizeof(response_text);
+
+	if(!HttpQueryInfoA(h_file, HTTP_QUERY_STATUS_CODE, &response_text, &response_text_size, nullptr))
+	{
+		cout << "Remote server is offline or unreachable.\n";
+		InternetCloseHandle(h_open);
+		InternetCloseHandle(h_file);
+		return -1;
+	}
+
+	cout << url << "\t" << "Response: " << response_text << " ";
+	// 100s
+	if(static_cast<string>(response_text) == "100") { cout << "Continue"; }
+	else if(static_cast<string>(response_text) == "101") { cout << "Switching Protocols"; }
+	else if(static_cast<string>(response_text) == "102") { cout << "Processing"; }
+	// 200s
+	else if(static_cast<string>(response_text) == "200") { cout << "OK"; }
+	else if(static_cast<string>(response_text) == "201") { cout << "Created"; }
+	else if(static_cast<string>(response_text) == "202") { cout << "Accepted"; }
+	else if(static_cast<string>(response_text) == "203") { cout << "Non-Authoritative Information"; }
+	else if(static_cast<string>(response_text) == "204") { cout << "No Content"; }
+	else if(static_cast<string>(response_text) == "205") { cout << "Reset Content"; }
+	else if(static_cast<string>(response_text) == "206") { cout << "Partial Content"; }
+	else if(static_cast<string>(response_text) == "207") { cout << "Multi-Status"; }
+	else if(static_cast<string>(response_text) == "208") { cout << "Already Reported"; }
+	else if(static_cast<string>(response_text) == "226") { cout << "IM Used"; }
+	// 300s
+	else if(static_cast<string>(response_text) == "300") { cout << "Multiple Choices"; }
+	else if(static_cast<string>(response_text) == "301") { cout << "Moved Permanently"; }
+	else if(static_cast<string>(response_text) == "302") { cout << "Found"; }
+	else if(static_cast<string>(response_text) == "303") { cout << "See Other"; }
+	else if(static_cast<string>(response_text) == "304") { cout << "Not Modified"; }
+	else if(static_cast<string>(response_text) == "305") { cout << "Use Proxy"; }
+	else if(static_cast<string>(response_text) == "306") { cout << "Switch Proxy"; }
+	else if(static_cast<string>(response_text) == "307") { cout << "Temporary Redirect"; }
+	else if(static_cast<string>(response_text) == "308") { cout << "Permanent Redirect"; }
+	// 400s
+	else if(static_cast<string>(response_text) == "400") { cout << "Bad Request"; }
+	else if(static_cast<string>(response_text) == "401") { cout << "Unauthorized"; }
+	else if(static_cast<string>(response_text) == "402") { cout << "Payment Required"; }
+	else if(static_cast<string>(response_text) == "403") { cout << "Forbidden"; }
+	else if(static_cast<string>(response_text) == "404") { cout << "Not Found"; }
+	else if(static_cast<string>(response_text) == "405") { cout << "Method Not Allowed"; }
+	else if(static_cast<string>(response_text) == "406") { cout << "Not Acceptable"; }
+	else if(static_cast<string>(response_text) == "407") { cout << "Proxy Authentication Required"; }
+	else if(static_cast<string>(response_text) == "408") { cout << "Request Timeout"; }
+	else if(static_cast<string>(response_text) == "409") { cout << "Conflict"; }
+	else if(static_cast<string>(response_text) == "410") { cout << "Gone"; }
+	else if(static_cast<string>(response_text) == "411") { cout << "Length Required"; }
+	else if(static_cast<string>(response_text) == "412") { cout << "Precondition Failed"; }
+	else if(static_cast<string>(response_text) == "413") { cout << "Request Entity Too Large"; }
+	else if(static_cast<string>(response_text) == "414") { cout << "Request-URI Too Long"; }
+	else if(static_cast<string>(response_text) == "415") { cout << "Unsupported Media Type"; }
+	else if(static_cast<string>(response_text) == "416") { cout << "Requested Range Not Satisfiable"; }
+	else if(static_cast<string>(response_text) == "417") { cout << "Expectation Failed"; }
+	else if(static_cast<string>(response_text) == "418") { cout << "I\'m a teapot"; } // :)
+	else if(static_cast<string>(response_text) == "419") { cout << "Authentication Timeout"; }
+	else if(static_cast<string>(response_text) == "420") { cout << "Method Failure"; }
+	else if(static_cast<string>(response_text) == "421") { cout << "Misdirected Request"; }
+	else if(static_cast<string>(response_text) == "422") { cout << "Unprocessable Entity"; }
+	else if(static_cast<string>(response_text) == "423") { cout << "Locked"; }
+	else if(static_cast<string>(response_text) == "424") { cout << "Failed Dependency"; }
+	else if(static_cast<string>(response_text) == "426") { cout << "Upgrade Required"; }
+	else if(static_cast<string>(response_text) == "428") { cout << "Precondition Required"; }
+	else if(static_cast<string>(response_text) == "429") { cout << "Too Many Requests"; }
+	else if(static_cast<string>(response_text) == "431") { cout << "Request Header Fields Too Large"; }
+	else if(static_cast<string>(response_text) == "440") { cout << "Login Timeout"; }
+	else if(static_cast<string>(response_text) == "444") { cout << "No Response"; }
+	else if(static_cast<string>(response_text) == "449") { cout << "Retry With"; }
+	else if(static_cast<string>(response_text) == "450") { cout << "Blocked by Windows Parental Controls"; }
+	else if(static_cast<string>(response_text) == "451") { cout << "Unavailable For Legal Reasons"; }
+	else if(static_cast<string>(response_text) == "494") { cout << "Request Header Too Large"; }
+	else if(static_cast<string>(response_text) == "495") { cout << "Cert Error"; }
+	else if(static_cast<string>(response_text) == "496") { cout << "No Cert"; }
+	else if(static_cast<string>(response_text) == "497") { cout << "HTTP to HTTPS"; }
+	else if(static_cast<string>(response_text) == "498") { cout << "Token Expired/Invalid"; }
+	else if(static_cast<string>(response_text) == "499") { cout << "Client Closed Request"; }
+	// 500s
+	else if(static_cast<string>(response_text) == "500") { cout << "Internal Server Error"; }
+	else if(static_cast<string>(response_text) == "501") { cout << "Not Implemented"; }
+	else if(static_cast<string>(response_text) == "502") { cout << "Bad Gateway"; }
+	else if(static_cast<string>(response_text) == "503") { cout << "Service Unavailable"; }
+	else if(static_cast<string>(response_text) == "504") { cout << "Gateway Timeout"; }
+	else if(static_cast<string>(response_text) == "505") { cout << "HTTP Version Not Supported"; }
+	else if(static_cast<string>(response_text) == "506") { cout << "Variant Also Negotiates"; }
+	else if(static_cast<string>(response_text) == "507") { cout << "Insufficient Storage"; }
+	else if(static_cast<string>(response_text) == "508") { cout << "Loop Detected"; }
+	else if(static_cast<string>(response_text) == "509") { cout << "Bandwidth Limit Exceeded"; }
+	else if(static_cast<string>(response_text) == "510") { cout << "Not Extended"; }
+	else if(static_cast<string>(response_text) == "511") { cout << "Network Authentication Required"; }
+	else if(static_cast<string>(response_text) == "520") { cout << "Unknown Error"; }
+	else if(static_cast<string>(response_text) == "598") { cout << "Network Read Timeout Error"; }
+	else if(static_cast<string>(response_text) == "599") { cout << "Network Connect Timeout Error"; }
+	cout << "\n";
+	InternetCloseHandle(h_open);
+	InternetCloseHandle(h_file);
+	return 0;
+}
 
 // Usage: timer timer_1(time_in_milliseconds, true_if_async, &function_name, argument_1, arg_2, ...); true makes it multithreaded
 class timer
@@ -54,7 +158,7 @@ public:
 
 template <typename T>
 // Format: 'delay milliseconds, quit character, exit value'
-T key_to_exit(int delay_time_in_ms, T char_for_quit, int exit_value, bool show_message)
+T key_to_exit(const int delay_time_in_ms, T char_for_quit, const int exit_value, const bool show_message)
 {
 	if(show_message)
 		cout << "\nPress " << char_for_quit << " to exit!\n";
@@ -73,7 +177,7 @@ T key_to_exit(int delay_time_in_ms, T char_for_quit, int exit_value, bool show_m
 
 template <typename T>
 // Format: 'quit character'
-T key_to_exit(T char_for_quit, bool show_message)
+T key_to_exit(T char_for_quit = 'q', const bool show_message = true)
 {
 	if(show_message)
 		cout << "\nPress " << char_for_quit << " to exit!\n";
@@ -91,7 +195,7 @@ T key_to_exit(T char_for_quit, bool show_message)
 }
 
 // Format: Just call it.
-void esc_to_exit(bool show_message)
+void esc_to_exit(const bool show_message = true)
 {
 	if (show_message)
 		cout << "\nPress ESC to exit!";
@@ -108,8 +212,8 @@ void esc_to_exit(bool show_message)
 	}
 }
 
-// Format: 'any_to_exit(true, 0);'
-void any_to_exit(int exit_value, bool show_message = true)
+// Format: 'any_to_exit(0, true);'
+void any_to_exit(const int exit_value = 0, const bool show_message = true)
 {
 	if (show_message)
 		cout << "\nPress any key to exit!";
@@ -117,35 +221,46 @@ void any_to_exit(int exit_value, bool show_message = true)
 	{
 		if (_kbhit())
 			exit(exit_value);
-	} Sleep(200);
+		Sleep(200);
+	}
 }
 
 // Helper for FTP connection
-__int64 get_file_size(LPCSTR name)
+__int64 get_file_size(const LPCSTR name)
 {
-	HANDLE hFile = CreateFile(name, GENERIC_READ, 
-		FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 
-		FILE_ATTRIBUTE_NORMAL, NULL);
-	if (hFile==INVALID_HANDLE_VALUE)
+	const auto h_file = CreateFile(name, GENERIC_READ, 
+		FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 
+		FILE_ATTRIBUTE_NORMAL, nullptr);
+	if (h_file == INVALID_HANDLE_VALUE)
 		return -1; // error condition, could call GetLastError to find out more
 
 	LARGE_INTEGER size;
-	if (!GetFileSizeEx(hFile, &size))
+	if (!GetFileSizeEx(h_file, &size))
 	{
-		CloseHandle(hFile);
+		CloseHandle(h_file);
 		return -1; // error condition, could call GetLastError to find out more
 	}
 
-	CloseHandle(hFile);
+	CloseHandle(h_file);
 	return size.QuadPart;
 }
 
 // Grabs file name from path.
-string get_file_name(const string& s) {
+string get_file_name_fs(const string& s) {
+	const auto sep = '\\';
 
-	char sep = '\\';
+	const auto i = s.rfind(sep, s.length());
 
-	size_t i = s.rfind(sep, s.length());
+	if (i != string::npos)
+		return(s.substr(i+1, s.length() - i));
+
+	return("");
+}
+
+string get_file_name_bs(const string& s) {
+	const auto sep = '/';
+
+	const auto i = s.rfind(sep, s.length());
 
 	if (i != string::npos)
 		return(s.substr(i+1, s.length() - i));
@@ -156,11 +271,12 @@ string get_file_name(const string& s) {
 // Encrypts a string
 string encrypt(string msg, string const& key)
 {
-    if(!key.size())
+    if(key.empty())
         return msg;
     
     for (string::size_type i = 0; i < msg.size(); ++i)
         msg[i] ^= key[i%key.size()];
+
     return msg;
 }
 
@@ -183,8 +299,8 @@ void upload_single_file(const LPCSTR url, const LPCSTR ftp_username, const LPCST
 		esc_to_exit(true);
 	}
 
-	const auto h_internet = InternetOpen(NULL, INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
-	auto start = chrono::steady_clock::now();
+	const auto h_internet = InternetOpen(nullptr, INTERNET_OPEN_TYPE_DIRECT, nullptr, nullptr, 0);
+	const auto start = chrono::steady_clock::now();
 	const auto h_ftp_session = InternetConnect(h_internet, url, INTERNET_DEFAULT_FTP_PORT, ftp_username, ftp_password, INTERNET_SERVICE_FTP, INTERNET_FLAG_PASSIVE, 0);
 
 	if (!h_ftp_session)
@@ -213,9 +329,8 @@ void upload_single_file(const LPCSTR url, const LPCSTR ftp_username, const LPCST
 	FtpPutFile(h_ftp_session, local_file_location, remote_file_location, FTP_TRANSFER_TYPE_BINARY, 0);
 	InternetCloseHandle(h_ftp_session);
 	InternetCloseHandle(h_internet);
-	auto end = chrono::steady_clock::now();
+	const auto end = chrono::steady_clock::now();
 	const auto duration_in_ms = chrono::duration_cast<chrono::milliseconds>(end - start).count();
-	const auto duration_in_s = chrono::duration_cast<chrono::seconds>(end - start).count();
 	cout << "\nUpload successful!\n";
 	cout << "------------------------------------\n";
 	cout << file_name << setprecision (2) << fixed << " @ " << static_cast<double>(file_size) / static_cast<double>(duration_in_ms) << " kb/s\n";
@@ -234,12 +349,11 @@ void upload_single_file(const LPCSTR url, const LPCSTR ftp_username, const LPCST
 }
 
 // convert string to LPCWSTR
-wstring s2ws(const string& s)
+wstring s2_ws(const string& s)
 {
-    int len;
-    int slength = (int)s.length() + 1;
-    len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0); 
-    wchar_t* buf = new wchar_t[len];
+	const auto slength = static_cast<int>(s.length()) + 1;
+	const auto len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, nullptr, 0);
+	const auto buf = new wchar_t[len];
     MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
     wstring r(buf);
     delete[] buf;
@@ -247,34 +361,34 @@ wstring s2ws(const string& s)
 }
 
 // Format: 'L"Speak whatever is written here"'
-bool text_to_speech(string input_text)
+bool text_to_speech(const string& input_text)
 {
-	wstring stemp = s2ws(input_text);
-	LPCWSTR sentence = stemp.c_str();
+	auto stemp = s2_ws(input_text);
+	const auto sentence = stemp.c_str();
 
-	ISpVoice * pVoice = NULL;
+	ISpVoice * p_voice = nullptr;
 
 	if (FAILED(::CoInitialize(NULL)))
 		return FALSE;
 
-	HRESULT hr = CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void **)&pVoice);
+	const auto hr = CoCreateInstance(CLSID_SpVoice, nullptr, CLSCTX_ALL, IID_ISpVoice, reinterpret_cast<void **>(&p_voice));
 	if (SUCCEEDED(hr))
 	{
-		hr = pVoice->Speak(sentence, SPF_IS_XML, NULL);
-		pVoice->Release();
-		pVoice = NULL;
+		p_voice->Speak(sentence, SPF_IS_XML, nullptr);
+		p_voice->Release();
+		p_voice = nullptr;
 	}
 
 	::CoUninitialize();
 	return TRUE;
 }
 
-void open_url(LPCSTR url)
+void open_url(const LPCSTR url)
 {
-	ShellExecute(0, 0, url, 0, 0 , SW_SHOW);
+	ShellExecute(nullptr, nullptr, url, nullptr, nullptr , SW_SHOW);
 }
 
-/* Format: 'sinput(true) to display ****'
+/* Format: 'sinput('*', true) to display ****'
 EXAMPLE CODE:
 
 int main()
@@ -389,32 +503,32 @@ void string_analyzer_eng(string value)
 	auto dsa_digits = 0;
 	auto dsa_symbols = 0;
 	auto dsa_lowercase_count = 0;
-	auto dsa_uppercase_count = 0;
+	auto dsa_uppercase_count = 0;  // NOLINT(modernize-loop-convert)
 
-	for (size_t i = 0; i < value.size(); i++)
+	for (auto i : value)
 	{
-		if (value[i] >= 48 && value[i] <= 57)
+		if (i >= 48 && i <= 57)
 		{
 			dsa_digits++;
 			continue;
 		}
-		if(!(value[i] >= 65 && value[i] <= 90) && !(value[i] >= 97 && value[i] <= 122) && !(value[i] >= 48 && value[i] <= 57))
+		if(!(i >= 65 && i <= 90) && !(i >= 97 && i <= 122) && !(i >= 48 && i <= 57))
 		{
 			dsa_symbols++;
 			continue;
 		}
-		if(value[i] >= 65 && value[i] <= 90)
+		if(i >= 65 && i <= 90)
 		{
 			dsa_uppercase_count++;
 		}
-		if(value[i] >= 97 && value[i] <= 122)
+		if(i >= 97 && i <= 122)
 		{
 			dsa_lowercase_count++;
 		}
-		if (value[i] == 'a' || value[i] == 'e' || value[i] == 'u' ||
-			value[i] == 'o' || value[i] == 'i' || value[i] == 'A' ||
-			value[i] == 'E' || value[i] == 'U' || value[i] == 'O' ||
-			value[i] == 'I')
+		if (i == 'a' || i == 'e' || i == 'u' ||
+			i == 'o' || i == 'i' || i == 'A' ||
+			i == 'E' || i == 'U' || i == 'O' ||
+			i == 'I')
 		{
 			dsa_vowels++;
 		}
@@ -452,7 +566,7 @@ void ping_url(const string& url)
 	cout << ", please wait..." << "\n";
 	auto ping_command = "ping " + url;
 
-	auto flag = system(ping_command.c_str());
+	system(ping_command.c_str());
 }
 
 // Format: 'binary_to_decimal(100001)' PS: This is a bit buggy on large numbers. Will fix it later on.
@@ -463,7 +577,7 @@ void binary_to_decimal(__int64 binary_number)
 
 	while(binary_number)
 	{
-		int last_digit = binary_number % 10;
+		const int last_digit = binary_number % 10;
 		binary_number = binary_number / 10;
 		decimal_value += last_digit*base;
 		base = base*2;
@@ -472,9 +586,9 @@ void binary_to_decimal(__int64 binary_number)
 }
 
 void to_clipboard(const string& s){
-	OpenClipboard(0);
-	EmptyClipboard();	
-	HGLOBAL hg=GlobalAlloc(GMEM_MOVEABLE,s.size()+1);
+	OpenClipboard(nullptr);
+	EmptyClipboard();
+	const auto hg=GlobalAlloc(GMEM_MOVEABLE,s.size()+1);
 	if (!hg){
 		CloseClipboard();
 		return;
@@ -496,30 +610,30 @@ int password_score(string value)
 	auto dsa_lowercase_count = 0;
 	auto dsa_uppercase_count = 0;
 
-	for (size_t i = 0; i < value.size(); i++)
+	for (auto i : value)
 	{
-		if (value[i] >= 48 && value[i] <= 57)
+		if (i >= 48 && i <= 57)
 		{
 			dsa_digits++;
 			continue;
 		}
-		if(!(value[i] >= 65 && value[i] <= 90) && !(value[i] >= 97 && value[i] <= 122) && !(value[i] >= 48 && value[i] <= 57))
+		if(!(i >= 65 && i <= 90) && !(i >= 97 && i <= 122) && !(i >= 48 && i <= 57))
 		{
 			dsa_symbols++;
 			continue;
 		}
-		if(value[i] >= 65 && value[i] <= 90)
+		if(i >= 65 && i <= 90)
 		{
 			dsa_uppercase_count++;
 		}
-		if(value[i] >= 97 && value[i] <= 122)
+		if(i >= 97 && i <= 122)
 		{
 			dsa_lowercase_count++;
 		}
-		if (value[i] == 'a' || value[i] == 'e' || value[i] == 'u' ||
-			value[i] == 'o' || value[i] == 'i' || value[i] == 'A' ||
-			value[i] == 'E' || value[i] == 'U' || value[i] == 'O' ||
-			value[i] == 'I')
+		if (i == 'a' || i == 'e' || i == 'u' ||
+			i == 'o' || i == 'i' || i == 'A' ||
+			i == 'E' || i == 'U' || i == 'O' ||
+			i == 'I')
 		{
 			dsa_vowels++;
 		}
@@ -530,11 +644,7 @@ int password_score(string value)
 	const auto dsa_letters = dsa_uppercase_count + dsa_lowercase_count;
 	const auto dsa_total_length = dsa_letters + dsa_digits + dsa_symbols;
 
-	bool has_uppercase = false;
-	bool has_lowercase = false;
-	bool has_digits = false;
-	bool has_symbols = false;
-	bool length_is_greater_than_eight = false;
+	auto length_is_greater_than_eight = false;
 	auto amount_of_correct_stuff = 0;
 
 	auto dsa_total_score = 0; // 5~N0v{2a
@@ -542,25 +652,21 @@ int password_score(string value)
 	if(dsa_uppercase_count > 0)
 	{
 		dsa_total_score += (dsa_total_length - dsa_uppercase_count) * 2;
-		has_uppercase = true;
 		amount_of_correct_stuff++;
 	}
 	if(dsa_lowercase_count > 0)
 	{
 		dsa_total_score += (dsa_total_length - dsa_lowercase_count) * 2;
-		has_lowercase = true;
 		amount_of_correct_stuff++;
 	}
 	if(dsa_digits > 0)
 	{
 		dsa_total_score += dsa_digits * 4;
-		has_digits = true;
 		amount_of_correct_stuff++;
 	}
 	if(dsa_symbols > 0)
 	{
 		dsa_total_score += dsa_symbols * 6;
-		has_symbols = true;
 		amount_of_correct_stuff++;
 	}
 	if(dsa_total_length >= 8)
@@ -577,7 +683,7 @@ int password_score(string value)
 }
 
 // Format: 'string password = password_generator(50, true, true);'
-string password_generator(const int length_of_password = 12, bool enable_symbols = false, bool copy_to_clipboard = false)
+string password_generator(const int length_of_password = 12, const bool enable_symbols = false, const bool copy_to_clipboard = false)
 {
 	vector<char> password;
 	srand (static_cast<unsigned int>(time(nullptr)));
@@ -652,7 +758,7 @@ string password_generator(const int length_of_password = 12, bool enable_symbols
     1048576  //=1024*1024: default is 1MB memory
 #endif
 
-namespace DUMANSHA256
+namespace dumansha256
 {
 typedef unsigned long word_t;
 typedef unsigned char byte_t;
@@ -660,9 +766,9 @@ typedef unsigned char byte_t;
 static const size_t k_digest_size = 32;
 
 namespace detail {
-inline byte_t mask_8bit(byte_t x) { return x & 0xff; }
+inline byte_t mask_8_bit(const byte_t x) { return x & 0xff; }
 
-inline word_t mask_32bit(word_t x) { return x & 0xffffffff; }
+inline word_t mask_32_bit(const word_t x) { return x & 0xffffffff; }
 
 const word_t add_constant[64] = {
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1,
@@ -681,29 +787,29 @@ const word_t initial_message_digest[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372,
                                           0xa54ff53a, 0x510e527f, 0x9b05688c,
                                           0x1f83d9ab, 0x5be0cd19};
 
-inline word_t ch(word_t x, word_t y, word_t z) { return (x & y) ^ ((~x) & z); }
+inline word_t ch(const word_t x, const word_t y, const word_t z) { return (x & y) ^ ((~x) & z); }
 
-inline word_t maj(word_t x, word_t y, word_t z) {
+inline word_t maj(const word_t x, const word_t y, const word_t z) {
     return (x & y) ^ (x & z) ^ (y & z);
 }
 
-inline word_t rotr(word_t x, std::size_t n) {
+inline word_t rotr(const word_t x, const std::size_t n) {
     assert(n < 32);
-    return mask_32bit((x >> n) | (x << (32 - n)));
+    return mask_32_bit((x >> n) | (x << (32 - n)));
 }
 
-inline word_t bsig0(word_t x) { return rotr(x, 2) ^ rotr(x, 13) ^ rotr(x, 22); }
+inline word_t bsig0(const word_t x) { return rotr(x, 2) ^ rotr(x, 13) ^ rotr(x, 22); }
 
-inline word_t bsig1(word_t x) { return rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25); }
+inline word_t bsig1(const word_t x) { return rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25); }
 
-inline word_t shr(word_t x, std::size_t n) {
+inline word_t shr(const word_t x, const std::size_t n) {
     assert(n < 32);
     return x >> n;
 }
 
-inline word_t ssig0(word_t x) { return rotr(x, 7) ^ rotr(x, 18) ^ shr(x, 3); }
+inline word_t ssig0(const word_t x) { return rotr(x, 7) ^ rotr(x, 18) ^ shr(x, 3); }
 
-inline word_t ssig1(word_t x) { return rotr(x, 17) ^ rotr(x, 19) ^ shr(x, 10); }
+inline word_t ssig1(const word_t x) { return rotr(x, 17) ^ rotr(x, 19) ^ shr(x, 10); }
 
 template <typename RaIter1, typename RaIter2>
 void hash256_block(RaIter1 message_digest, RaIter2 first, RaIter2 last) {
@@ -712,13 +818,13 @@ void hash256_block(RaIter1 message_digest, RaIter2 first, RaIter2 last) {
     word_t w[64];
     std::fill(w, w + 64, 0);
     for (std::size_t i = 0; i < 16; ++i) {
-        w[i] = (static_cast<word_t>(mask_8bit(*(first + i * 4))) << 24) |
-               (static_cast<word_t>(mask_8bit(*(first + i * 4 + 1))) << 16) |
-               (static_cast<word_t>(mask_8bit(*(first + i * 4 + 2))) << 8) |
-               (static_cast<word_t>(mask_8bit(*(first + i * 4 + 3))));
+        w[i] = (static_cast<word_t>(mask_8_bit(*(first + i * 4))) << 24) |
+               (static_cast<word_t>(mask_8_bit(*(first + i * 4 + 1))) << 16) |
+               (static_cast<word_t>(mask_8_bit(*(first + i * 4 + 2))) << 8) |
+               (static_cast<word_t>(mask_8_bit(*(first + i * 4 + 3))));
     }
     for (std::size_t i = 16; i < 64; ++i) {
-        w[i] = mask_32bit(ssig1(w[i - 2]) + w[i - 7] + ssig0(w[i - 15]) +
+        w[i] = mask_32_bit(ssig1(w[i - 2]) + w[i - 7] + ssig0(w[i - 15]) +
                           w[i - 16]);
     }
 
@@ -732,16 +838,16 @@ void hash256_block(RaIter1 message_digest, RaIter2 first, RaIter2 last) {
     word_t h = *(message_digest + 7);
 
     for (std::size_t i = 0; i < 64; ++i) {
-        word_t temp1 = h + bsig1(e) + ch(e, f, g) + add_constant[i] + w[i];
-        word_t temp2 = bsig0(a) + maj(a, b, c);
+	    const auto temp1 = h + bsig1(e) + ch(e, f, g) + add_constant[i] + w[i];
+	    const auto temp2 = bsig0(a) + maj(a, b, c);
         h = g;
         g = f;
         f = e;
-        e = mask_32bit(d + temp1);
+        e = mask_32_bit(d + temp1);
         d = c;
         c = b;
         b = a;
-        a = mask_32bit(temp1 + temp2);
+        a = mask_32_bit(temp1 + temp2);
     }
     *message_digest += a;
     *(message_digest + 1) += b;
@@ -752,7 +858,7 @@ void hash256_block(RaIter1 message_digest, RaIter2 first, RaIter2 last) {
     *(message_digest + 6) += g;
     *(message_digest + 7) += h;
     for (std::size_t i = 0; i < 8; ++i) {
-        *(message_digest + i) = mask_32bit(*(message_digest + i));
+        *(message_digest + i) = mask_32_bit(*(message_digest + i));
     }
 }
 
@@ -822,7 +928,7 @@ class hash256_one_by_one {
     void finish() {
         byte_t temp[64];
         std::fill(temp, temp + 64, 0);
-        std::size_t remains = buffer_.size();
+	    const auto remains = buffer_.size();
         std::copy(buffer_.begin(), buffer_.end(), temp);
         temp[remains] = 0x80;
 
@@ -840,9 +946,9 @@ class hash256_one_by_one {
 
     template <typename OutIter>
     void get_hash_bytes(OutIter first, OutIter last) const {
-        for (const word_t* iter = h_; iter != h_ + 8; ++iter) {
+        for (auto iter = h_; iter != h_ + 8; ++iter) {
             for (std::size_t i = 0; i < 4 && first != last; ++i) {
-                *(first++) = detail::mask_8bit(
+                *(first++) = detail::mask_8_bit(
                     static_cast<byte_t>((*iter >> (24 - 8 * i))));
             }
         }
@@ -852,11 +958,12 @@ class hash256_one_by_one {
     void add_to_data_length(word_t n) {
         word_t carry = 0;
         data_length_digits_[0] += n;
-        for (std::size_t i = 0; i < 4; ++i) {
-            data_length_digits_[i] += carry;
-            if (data_length_digits_[i] >= 65536u) {
-                carry = data_length_digits_[i] >> 16;
-                data_length_digits_[i] &= 65535u;
+        for (auto& data_length_digit : data_length_digits_)
+        {
+	        data_length_digit += carry;
+            if (data_length_digit >= 65536u) {
+                carry = data_length_digit >> 16;
+	            data_length_digit &= 65535u;
             } else {
                 break;
             }
@@ -869,23 +976,24 @@ class hash256_one_by_one {
 
         // convert byte length to bit length (multiply 8 or shift 3 times left)
         word_t carry = 0;
-        for (std::size_t i = 0; i < 4; ++i) {
-            word_t before_val = data_bit_length_digits[i];
-            data_bit_length_digits[i] <<= 3;
-            data_bit_length_digits[i] |= carry;
-            data_bit_length_digits[i] &= 65535u;
+        for (auto& data_bit_length_digit : data_bit_length_digits)
+        {
+	        const auto before_val = data_bit_length_digit;
+	        data_bit_length_digit <<= 3;
+	        data_bit_length_digit |= carry;
+	        data_bit_length_digit &= 65535u;
             carry = (before_val >> (16 - 3)) & 65535u;
         }
 
         // write data_bit_length
-        for (int i = 3; i >= 0; --i) {
+        for (auto i = 3; i >= 0; --i) {
             (*begin++) = static_cast<byte_t>(data_bit_length_digits[i] >> 8);
             (*begin++) = static_cast<byte_t>(data_bit_length_digits[i]);
         }
     }
     std::vector<byte_t> buffer_;
-    word_t data_length_digits_[4];  // as 64bit integer (16bit x 4 integer)
-    word_t h_[8];
+    word_t data_length_digits_[4]{};  // as 64bit integer (16bit x 4 integer)
+    word_t h_[8]{};
 };
 
 inline void get_hash_hex_string(const hash256_one_by_one& hasher,
@@ -914,7 +1022,7 @@ void hash256_impl(RaIter first, RaIter last, OutIter first2, OutIter last2, int,
 
 template <typename InputIter, typename OutIter>
 void hash256_impl(InputIter first, InputIter last, OutIter first2,
-                  OutIter last2, int buffer_size, std::input_iterator_tag) {
+                  OutIter last2, const int buffer_size, std::input_iterator_tag) {
     std::vector<byte_t> buffer(buffer_size);
     hash256_one_by_one hasher;
     // hasher.init();
@@ -937,7 +1045,7 @@ void hash256_impl(InputIter first, InputIter last, OutIter first2,
 template <typename InIter, typename OutIter>
 void hash256(InIter first, InIter last, OutIter first2, OutIter last2,
              int buffer_size = DUMANSHA256_BUFFER_SIZE_FOR_INPUT_ITERATOR) {
-    DUMANSHA256::impl::hash256_impl(
+    dumansha256::impl::hash256_impl(
         first, last, first2, last2, buffer_size,
         typename std::iterator_traits<InIter>::iterator_category());
 }
