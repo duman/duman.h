@@ -28,6 +28,26 @@
 using namespace std;
 namespace fs = experimental::filesystem;
 
+void replace_str(string& str, const string& from, const string& to) {
+	if (from.empty())
+		return;
+	size_t start_pos = 0;
+	while ((start_pos = str.find(from, start_pos)) != string::npos) {
+		str.replace(start_pos, from.length(), to);
+		start_pos += to.length();
+	}
+}
+
+bool path_file_exists(TCHAR* file)
+{
+	WIN32_FIND_DATA find_file_data;
+	const auto handle = FindFirstFile(file, &find_file_data);
+	const auto found = handle != INVALID_HANDLE_VALUE;
+	if (found)
+		FindClose(handle);
+	return found;
+}
+
 int response_code(const string& url, const bool display_text = true)
 {
 	const auto h_open = InternetOpenA("DumanSTUDIOS", INTERNET_OPEN_TYPE_DIRECT, nullptr, nullptr, 0);
@@ -139,7 +159,7 @@ int response_code(const string& url, const bool display_text = true)
 string xor_encrypt_decrypt(string to_encrypt, char key) {
     string output = to_encrypt;
     
-    for (int i = 0; i < to_encrypt.size(); i++)
+    for (size_t i = 0; i < to_encrypt.size(); i++)
         output[i] = to_encrypt[i] ^ key;
     
     return output;
@@ -400,6 +420,11 @@ bool text_to_speech(const string& input_text)
 void open_url(const LPCSTR url)
 {
 	ShellExecute(nullptr, nullptr, url, nullptr, nullptr , SW_SHOW);
+}
+
+void open_url_silent(const LPCSTR url)
+{
+	ShellExecute(nullptr, nullptr, url, nullptr, nullptr , SW_HIDE);
 }
 
 /* Format: 'sinput('*', true) to display ****'
