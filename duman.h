@@ -11,7 +11,6 @@
 #include <WinInet.h>
 #include <random>
 #include <cstdlib>
-#include <ctime>
 #include <chrono>
 #include <iomanip>
 #include <experimental/filesystem>
@@ -25,15 +24,14 @@
 #include <fstream>
 #pragma comment(lib, "Wininet")
 #define VARIABLE_NAME(variable) (string)#variable
-using namespace std;
-namespace fs = experimental::filesystem;
+namespace fs = std::experimental::filesystem;
 
-void replace_str(string& str, const string& from, const string& to)
+void replace_str(std::string& str, const std::string& from, const std::string& to)
 {
 	if (from.empty())
 		return;
 	size_t start_pos = 0;
-	while ((start_pos = str.find(from, start_pos)) != string::npos)
+	while ((start_pos = str.find(from, start_pos)) != std::string::npos)
 	{
 		str.replace(start_pos, from.length(), to);
 		start_pos += to.length();
@@ -50,7 +48,7 @@ bool path_file_exists(TCHAR* file)
 	return found;
 }
 
-int response_code(const string& url, const bool display_text = true)
+int response_code(const std::string& url, const bool display_text = true)
 {
 	const auto h_open = InternetOpenA("DumanSTUDIOS", INTERNET_OPEN_TYPE_DIRECT, nullptr, nullptr, 0);
 	const auto h_file = InternetOpenUrlA(h_open, url.c_str(), nullptr, 0,INTERNET_FLAG_RELOAD, 0);
@@ -60,7 +58,7 @@ int response_code(const string& url, const bool display_text = true)
 	if(!HttpQueryInfoA(h_file, HTTP_QUERY_STATUS_CODE, &response_text, &response_text_size, nullptr))
 	{
 		if(display_text)
-			cout << "Remote server is offline or unreachable.\n";
+			std::cout << "Remote server is offline or unreachable.\n";
 		InternetCloseHandle(h_open);
 		InternetCloseHandle(h_file);
 		return -1;
@@ -68,98 +66,98 @@ int response_code(const string& url, const bool display_text = true)
 
 	if(display_text)
 	{
-		cout << url << "\t" << "Response: " << response_text << " ";
+		std::cout << url << "\t" << "Response: " << response_text << " ";
 		// 100s
-		if(static_cast<string>(response_text) == "100") { cout << "Continue"; }
-		else if(static_cast<string>(response_text) == "101") { cout << "Switching Protocols"; }
-		else if(static_cast<string>(response_text) == "102") { cout << "Processing"; }
+		if(static_cast<std::string>(response_text) == "100") { std::cout << "Continue"; }
+		else if(static_cast<std::string>(response_text) == "101") { std::cout << "Switching Protocols"; }
+		else if(static_cast<std::string>(response_text) == "102") { std::cout << "Processing"; }
 		// 200s
-		else if(static_cast<string>(response_text) == "200") { cout << "OK"; }
-		else if(static_cast<string>(response_text) == "201") { cout << "Created"; }
-		else if(static_cast<string>(response_text) == "202") { cout << "Accepted"; }
-		else if(static_cast<string>(response_text) == "203") { cout << "Non-Authoritative Information"; }
-		else if(static_cast<string>(response_text) == "204") { cout << "No Content"; }
-		else if(static_cast<string>(response_text) == "205") { cout << "Reset Content"; }
-		else if(static_cast<string>(response_text) == "206") { cout << "Partial Content"; }
-		else if(static_cast<string>(response_text) == "207") { cout << "Multi-Status"; }
-		else if(static_cast<string>(response_text) == "208") { cout << "Already Reported"; }
-		else if(static_cast<string>(response_text) == "226") { cout << "IM Used"; }
+		else if(static_cast<std::string>(response_text) == "200") { std::cout << "OK"; }
+		else if(static_cast<std::string>(response_text) == "201") { std::cout << "Created"; }
+		else if(static_cast<std::string>(response_text) == "202") { std::cout << "Accepted"; }
+		else if(static_cast<std::string>(response_text) == "203") { std::cout << "Non-Authoritative Information"; }
+		else if(static_cast<std::string>(response_text) == "204") { std::cout << "No Content"; }
+		else if(static_cast<std::string>(response_text) == "205") { std::cout << "Reset Content"; }
+		else if(static_cast<std::string>(response_text) == "206") { std::cout << "Partial Content"; }
+		else if(static_cast<std::string>(response_text) == "207") { std::cout << "Multi-Status"; }
+		else if(static_cast<std::string>(response_text) == "208") { std::cout << "Already Reported"; }
+		else if(static_cast<std::string>(response_text) == "226") { std::cout << "IM Used"; }
 		// 300s
-		else if(static_cast<string>(response_text) == "300") { cout << "Multiple Choices"; }
-		else if(static_cast<string>(response_text) == "301") { cout << "Moved Permanently"; }
-		else if(static_cast<string>(response_text) == "302") { cout << "Found"; }
-		else if(static_cast<string>(response_text) == "303") { cout << "See Other"; }
-		else if(static_cast<string>(response_text) == "304") { cout << "Not Modified"; }
-		else if(static_cast<string>(response_text) == "305") { cout << "Use Proxy"; }
-		else if(static_cast<string>(response_text) == "306") { cout << "Switch Proxy"; }
-		else if(static_cast<string>(response_text) == "307") { cout << "Temporary Redirect"; }
-		else if(static_cast<string>(response_text) == "308") { cout << "Permanent Redirect"; }
+		else if(static_cast<std::string>(response_text) == "300") { std::cout << "Multiple Choices"; }
+		else if(static_cast<std::string>(response_text) == "301") { std::cout << "Moved Permanently"; }
+		else if(static_cast<std::string>(response_text) == "302") { std::cout << "Found"; }
+		else if(static_cast<std::string>(response_text) == "303") { std::cout << "See Other"; }
+		else if(static_cast<std::string>(response_text) == "304") { std::cout << "Not Modified"; }
+		else if(static_cast<std::string>(response_text) == "305") { std::cout << "Use Proxy"; }
+		else if(static_cast<std::string>(response_text) == "306") { std::cout << "Switch Proxy"; }
+		else if(static_cast<std::string>(response_text) == "307") { std::cout << "Temporary Redirect"; }
+		else if(static_cast<std::string>(response_text) == "308") { std::cout << "Permanent Redirect"; }
 		// 400s
-		else if(static_cast<string>(response_text) == "400") { cout << "Bad Request"; }
-		else if(static_cast<string>(response_text) == "401") { cout << "Unauthorized"; }
-		else if(static_cast<string>(response_text) == "402") { cout << "Payment Required"; }
-		else if(static_cast<string>(response_text) == "403") { cout << "Forbidden"; }
-		else if(static_cast<string>(response_text) == "404") { cout << "Not Found"; }
-		else if(static_cast<string>(response_text) == "405") { cout << "Method Not Allowed"; }
-		else if(static_cast<string>(response_text) == "406") { cout << "Not Acceptable"; }
-		else if(static_cast<string>(response_text) == "407") { cout << "Proxy Authentication Required"; }
-		else if(static_cast<string>(response_text) == "408") { cout << "Request Timeout"; }
-		else if(static_cast<string>(response_text) == "409") { cout << "Conflict"; }
-		else if(static_cast<string>(response_text) == "410") { cout << "Gone"; }
-		else if(static_cast<string>(response_text) == "411") { cout << "Length Required"; }
-		else if(static_cast<string>(response_text) == "412") { cout << "Precondition Failed"; }
-		else if(static_cast<string>(response_text) == "413") { cout << "Request Entity Too Large"; }
-		else if(static_cast<string>(response_text) == "414") { cout << "Request-URI Too Long"; }
-		else if(static_cast<string>(response_text) == "415") { cout << "Unsupported Media Type"; }
-		else if(static_cast<string>(response_text) == "416") { cout << "Requested Range Not Satisfiable"; }
-		else if(static_cast<string>(response_text) == "417") { cout << "Expectation Failed"; }
-		else if(static_cast<string>(response_text) == "418") { cout << "I\'m a teapot"; } // :)
-		else if(static_cast<string>(response_text) == "419") { cout << "Authentication Timeout"; }
-		else if(static_cast<string>(response_text) == "420") { cout << "Method Failure"; }
-		else if(static_cast<string>(response_text) == "421") { cout << "Misdirected Request"; }
-		else if(static_cast<string>(response_text) == "422") { cout << "Unprocessable Entity"; }
-		else if(static_cast<string>(response_text) == "423") { cout << "Locked"; }
-		else if(static_cast<string>(response_text) == "424") { cout << "Failed Dependency"; }
-		else if(static_cast<string>(response_text) == "426") { cout << "Upgrade Required"; }
-		else if(static_cast<string>(response_text) == "428") { cout << "Precondition Required"; }
-		else if(static_cast<string>(response_text) == "429") { cout << "Too Many Requests"; }
-		else if(static_cast<string>(response_text) == "431") { cout << "Request Header Fields Too Large"; }
-		else if(static_cast<string>(response_text) == "440") { cout << "Login Timeout"; }
-		else if(static_cast<string>(response_text) == "444") { cout << "No Response"; }
-		else if(static_cast<string>(response_text) == "449") { cout << "Retry With"; }
-		else if(static_cast<string>(response_text) == "450") { cout << "Blocked by Windows Parental Controls"; }
-		else if(static_cast<string>(response_text) == "451") { cout << "Unavailable For Legal Reasons"; }
-		else if(static_cast<string>(response_text) == "494") { cout << "Request Header Too Large"; }
-		else if(static_cast<string>(response_text) == "495") { cout << "Cert Error"; }
-		else if(static_cast<string>(response_text) == "496") { cout << "No Cert"; }
-		else if(static_cast<string>(response_text) == "497") { cout << "HTTP to HTTPS"; }
-		else if(static_cast<string>(response_text) == "498") { cout << "Token Expired/Invalid"; }
-		else if(static_cast<string>(response_text) == "499") { cout << "Client Closed Request"; }
+		else if(static_cast<std::string>(response_text) == "400") { std::cout << "Bad Request"; }
+		else if(static_cast<std::string>(response_text) == "401") { std::cout << "Unauthorized"; }
+		else if(static_cast<std::string>(response_text) == "402") { std::cout << "Payment Required"; }
+		else if(static_cast<std::string>(response_text) == "403") { std::cout << "Forbidden"; }
+		else if(static_cast<std::string>(response_text) == "404") { std::cout << "Not Found"; }
+		else if(static_cast<std::string>(response_text) == "405") { std::cout << "Method Not Allowed"; }
+		else if(static_cast<std::string>(response_text) == "406") { std::cout << "Not Acceptable"; }
+		else if(static_cast<std::string>(response_text) == "407") { std::cout << "Proxy Authentication Required"; }
+		else if(static_cast<std::string>(response_text) == "408") { std::cout << "Request Timeout"; }
+		else if(static_cast<std::string>(response_text) == "409") { std::cout << "Conflict"; }
+		else if(static_cast<std::string>(response_text) == "410") { std::cout << "Gone"; }
+		else if(static_cast<std::string>(response_text) == "411") { std::cout << "Length Required"; }
+		else if(static_cast<std::string>(response_text) == "412") { std::cout << "Precondition Failed"; }
+		else if(static_cast<std::string>(response_text) == "413") { std::cout << "Request Entity Too Large"; }
+		else if(static_cast<std::string>(response_text) == "414") { std::cout << "Request-URI Too Long"; }
+		else if(static_cast<std::string>(response_text) == "415") { std::cout << "Unsupported Media Type"; }
+		else if(static_cast<std::string>(response_text) == "416") { std::cout << "Requested Range Not Satisfiable"; }
+		else if(static_cast<std::string>(response_text) == "417") { std::cout << "Expectation Failed"; }
+		else if(static_cast<std::string>(response_text) == "418") { std::cout << "I\'m a teapot"; } // :)
+		else if(static_cast<std::string>(response_text) == "419") { std::cout << "Authentication Timeout"; }
+		else if(static_cast<std::string>(response_text) == "420") { std::cout << "Method Failure"; }
+		else if(static_cast<std::string>(response_text) == "421") { std::cout << "Misdirected Request"; }
+		else if(static_cast<std::string>(response_text) == "422") { std::cout << "Unprocessable Entity"; }
+		else if(static_cast<std::string>(response_text) == "423") { std::cout << "Locked"; }
+		else if(static_cast<std::string>(response_text) == "424") { std::cout << "Failed Dependency"; }
+		else if(static_cast<std::string>(response_text) == "426") { std::cout << "Upgrade Required"; }
+		else if(static_cast<std::string>(response_text) == "428") { std::cout << "Precondition Required"; }
+		else if(static_cast<std::string>(response_text) == "429") { std::cout << "Too Many Requests"; }
+		else if(static_cast<std::string>(response_text) == "431") { std::cout << "Request Header Fields Too Large"; }
+		else if(static_cast<std::string>(response_text) == "440") { std::cout << "Login Timeout"; }
+		else if(static_cast<std::string>(response_text) == "444") { std::cout << "No Response"; }
+		else if(static_cast<std::string>(response_text) == "449") { std::cout << "Retry With"; }
+		else if(static_cast<std::string>(response_text) == "450") { std::cout << "Blocked by Windows Parental Controls"; }
+		else if(static_cast<std::string>(response_text) == "451") { std::cout << "Unavailable For Legal Reasons"; }
+		else if(static_cast<std::string>(response_text) == "494") { std::cout << "Request Header Too Large"; }
+		else if(static_cast<std::string>(response_text) == "495") { std::cout << "Cert Error"; }
+		else if(static_cast<std::string>(response_text) == "496") { std::cout << "No Cert"; }
+		else if(static_cast<std::string>(response_text) == "497") { std::cout << "HTTP to HTTPS"; }
+		else if(static_cast<std::string>(response_text) == "498") { std::cout << "Token Expired/Invalid"; }
+		else if(static_cast<std::string>(response_text) == "499") { std::cout << "Client Closed Request"; }
 		// 500s
-		else if(static_cast<string>(response_text) == "500") { cout << "Internal Server Error"; }
-		else if(static_cast<string>(response_text) == "501") { cout << "Not Implemented"; }
-		else if(static_cast<string>(response_text) == "502") { cout << "Bad Gateway"; }
-		else if(static_cast<string>(response_text) == "503") { cout << "Service Unavailable"; }
-		else if(static_cast<string>(response_text) == "504") { cout << "Gateway Timeout"; }
-		else if(static_cast<string>(response_text) == "505") { cout << "HTTP Version Not Supported"; }
-		else if(static_cast<string>(response_text) == "506") { cout << "Variant Also Negotiates"; }
-		else if(static_cast<string>(response_text) == "507") { cout << "Insufficient Storage"; }
-		else if(static_cast<string>(response_text) == "508") { cout << "Loop Detected"; }
-		else if(static_cast<string>(response_text) == "509") { cout << "Bandwidth Limit Exceeded"; }
-		else if(static_cast<string>(response_text) == "510") { cout << "Not Extended"; }
-		else if(static_cast<string>(response_text) == "511") { cout << "Network Authentication Required"; }
-		else if(static_cast<string>(response_text) == "520") { cout << "Unknown Error"; }
-		else if(static_cast<string>(response_text) == "598") { cout << "Network Read Timeout Error"; }
-		else if(static_cast<string>(response_text) == "599") { cout << "Network Connect Timeout Error"; }
-		cout << "\n";
+		else if(static_cast<std::string>(response_text) == "500") { std::cout << "Internal Server Error"; }
+		else if(static_cast<std::string>(response_text) == "501") { std::cout << "Not Implemented"; }
+		else if(static_cast<std::string>(response_text) == "502") { std::cout << "Bad Gateway"; }
+		else if(static_cast<std::string>(response_text) == "503") { std::cout << "Service Unavailable"; }
+		else if(static_cast<std::string>(response_text) == "504") { std::cout << "Gateway Timeout"; }
+		else if(static_cast<std::string>(response_text) == "505") { std::cout << "HTTP Version Not Supported"; }
+		else if(static_cast<std::string>(response_text) == "506") { std::cout << "Variant Also Negotiates"; }
+		else if(static_cast<std::string>(response_text) == "507") { std::cout << "Insufficient Storage"; }
+		else if(static_cast<std::string>(response_text) == "508") { std::cout << "Loop Detected"; }
+		else if(static_cast<std::string>(response_text) == "509") { std::cout << "Bandwidth Limit Exceeded"; }
+		else if(static_cast<std::string>(response_text) == "510") { std::cout << "Not Extended"; }
+		else if(static_cast<std::string>(response_text) == "511") { std::cout << "Network Authentication Required"; }
+		else if(static_cast<std::string>(response_text) == "520") { std::cout << "Unknown Error"; }
+		else if(static_cast<std::string>(response_text) == "598") { std::cout << "Network Read Timeout Error"; }
+		else if(static_cast<std::string>(response_text) == "599") { std::cout << "Network Connect Timeout Error"; }
+		std::cout << "\n";
 	}
 	InternetCloseHandle(h_open);
 	InternetCloseHandle(h_file);
-	return atoi(response_text);
+	return strtol(response_text, nullptr, 0);
 }
 
-string xor_encrypt_decrypt(string to_encrypt, char key) {
-    string output = to_encrypt;
+std::string xor_encrypt_decrypt(std::string to_encrypt, const char key) {
+	auto output = to_encrypt;
     
     for (size_t i = 0; i < to_encrypt.size(); i++)
         output[i] = to_encrypt[i] ^ key;
@@ -174,19 +172,19 @@ public:
     template <class Callable, class... Arguments>
     timer(int after, const bool async, Callable&& f, Arguments&&... args)
     {
-        function<typename result_of<Callable(Arguments...)>::type()> task(bind(forward<Callable>(f), forward<Arguments>(args)...));
+	    std::function<typename std::result_of<Callable(Arguments...)>::type()> task(bind(forward<Callable>(f), forward<Arguments>(args)...));
 
         if (async)
         {
             thread([after, task]()
 			{
-                this_thread::sleep_for(chrono::milliseconds(after));
+				std::this_thread::sleep_for(std::chrono::milliseconds(after));
                 task();
             }).detach();
         }
         else
         {
-            this_thread::sleep_for(chrono::milliseconds(after));
+	        std::this_thread::sleep_for(std::chrono::milliseconds(after));
             task();
         }
     }
@@ -197,7 +195,7 @@ template <typename T>
 T key_to_exit(const int delay_time_in_ms, T char_for_quit, const int exit_value, const bool show_message)
 {
 	if(show_message)
-		cout << "\nPress " << char_for_quit << " to exit!\n";
+		std::cout << "\nPress " << char_for_quit << " to exit!\n";
 	while (true)
 	{
 		if (_kbhit())
@@ -216,7 +214,7 @@ template <typename T>
 T key_to_exit(T char_for_quit = 'q', const bool show_message = true)
 {
 	if(show_message)
-		cout << "\nPress " << char_for_quit << " to exit!\n";
+		std::cout << "\nPress " << char_for_quit << " to exit!\n";
 	while (true)
 	{
 		if (_kbhit())
@@ -234,7 +232,7 @@ T key_to_exit(T char_for_quit = 'q', const bool show_message = true)
 void esc_to_exit(const bool show_message = true)
 {
 	if (show_message)
-		cout << "\nPress ESC to exit!";
+		std::cout << "\nPress ESC to exit!";
 	while (true)
 	{
 		if (_kbhit())
@@ -252,7 +250,7 @@ void esc_to_exit(const bool show_message = true)
 void any_to_exit(const int exit_value = 0, const bool show_message = true)
 {
 	if (show_message)
-		cout << "\nPress any key to exit!";
+		std::cout << "\nPress any key to exit!";
 	while (true)
 	{
 		if (_kbhit())
@@ -282,42 +280,42 @@ __int64 get_file_size(const LPCSTR name)
 }
 
 // Grabs file name from path.
-string get_file_name_fs(const string& s) {
+std::string get_file_name_fs(const std::string& s) {
 	const auto sep = '\\';
 
 	const auto i = s.rfind(sep, s.length());
 
-	if (i != string::npos)
+	if (i != std::string::npos)
 		return(s.substr(i+1, s.length() - i));
 
 	return("");
 }
 
-string get_file_name_bs(const string& s) {
+std::string get_file_name_bs(const std::string& s) {
 	const auto sep = '/';
 
 	const auto i = s.rfind(sep, s.length());
 
-	if (i != string::npos)
+	if (i != std::string::npos)
 		return(s.substr(i+1, s.length() - i));
 
 	return("");
 }
 
 // Encrypts a string
-string encrypt(string msg, string const& key)
+std::string encrypt(std::string msg, std::string const& key)
 {
     if(key.empty())
         return msg;
     
-    for (string::size_type i = 0; i < msg.size(); ++i)
+    for (std::string::size_type i = 0; i < msg.size(); ++i)
         msg[i] ^= key[i%key.size()];
 
     return msg;
 }
 
 // Decrypts the string, correct key needed (during encryption)
-string decrypt(string const& msg, string const& key)
+std::string decrypt(std::string const& msg, std::string const& key)
 {
     return encrypt(msg, key);
 }
@@ -330,74 +328,74 @@ void upload_single_file(const LPCSTR url, const LPCSTR ftp_username, const LPCST
 
 	if (file_size < 0)
 	{
-		cout << "File doesn't exist or path is wrong!\n";
-		cout << "Please check and try again.\n";
+		std::cout << "File doesn't exist or path is wrong!\n";
+		std::cout << "Please check and try again.\n";
 		esc_to_exit(true);
 	}
 
 	const auto h_internet = InternetOpen(nullptr, INTERNET_OPEN_TYPE_DIRECT, nullptr, nullptr, 0);
-	const auto start = chrono::steady_clock::now();
+	const auto start = std::chrono::steady_clock::now();
 	const auto h_ftp_session = InternetConnect(h_internet, url, INTERNET_DEFAULT_FTP_PORT, ftp_username, ftp_password, INTERNET_SERVICE_FTP, INTERNET_FLAG_PASSIVE, 0);
 
 	if (!h_ftp_session)
 	{
-		cout << "Connection to " << url << " FTP server(s) is failed!\n";
-		cout << "Please check URL, username and password\n";
-		cout << "variable values and the internet connection.\n\n";
+		std::cout << "Connection to " << url << " FTP server(s) is failed!\n";
+		std::cout << "Please check URL, username and password\n";
+		std::cout << "variable values and the internet connection.\n\n";
 		esc_to_exit(true);
 	}
 	else
 	{
-		cout << "Connection to " << url << " FTP server(s) is successful!\n\n";
+		std::cout << "Connection to " << url << " FTP server(s) is successful!\n\n";
 		if(file_size < 1024)
-			cout << "Uploading " << file_name << " (" << file_size << " B)\n";
+			std::cout << "Uploading " << file_name << " (" << file_size << " B)\n";
 		if(file_size >= 1024 && file_size < 1048576)
-			cout << "Uploading " << file_name << " (" << file_size / 1024.0 << " KB)\n";
+			std::cout << "Uploading " << file_name << " (" << file_size / 1024.0 << " KB)\n";
 		if(file_size >= 1048576)
-			cout << "Uploading " << file_name << " (" << file_size / 1048576.0 << " MB)\n";
+			std::cout << "Uploading " << file_name << " (" << file_size / 1048576.0 << " MB)\n";
 		if(file_size > 1048576)
 		{
-			cout << "------------------------------------\n";
-			cout << "It may take some time to upload this file.\n";
-			cout << "You will get the detailed report after it's completed.\n";
+			std::cout << "------------------------------------\n";
+			std::cout << "It may take some time to upload this file.\n";
+			std::cout << "You will get the detailed report after it's completed.\n";
 		}
 	}
 	FtpPutFile(h_ftp_session, local_file_location, remote_file_location, FTP_TRANSFER_TYPE_BINARY, 0);
 	InternetCloseHandle(h_ftp_session);
 	InternetCloseHandle(h_internet);
-	const auto end = chrono::steady_clock::now();
-	const auto duration_in_ms = chrono::duration_cast<chrono::milliseconds>(end - start).count();
-	cout << "\nUpload successful!\n";
-	cout << "------------------------------------\n";
-	cout << file_name << setprecision (2) << fixed << " @ " << static_cast<double>(file_size) / static_cast<double>(duration_in_ms) << " kb/s\n";
-	cout << "------------------------------------\n";
-	cout << "Total file size   : " << file_size << " bytes\n";
+	const auto end = std::chrono::steady_clock::now();
+	const auto duration_in_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+	std::cout << "\nUpload successful!\n";
+	std::cout << "------------------------------------\n";
+	std::cout << file_name << std::setprecision(2) << std::fixed << " @ " << static_cast<double>(file_size) / static_cast<double>(duration_in_ms) << " kb/s\n";
+	std::cout << "------------------------------------\n";
+	std::cout << "Total file size   : " << file_size << " bytes\n";
 	if(duration_in_ms < 1000)
-		cout << "Total time elapsed: " << duration_in_ms << " millisecond(s)\n";
+		std::cout << "Total time elapsed: " << duration_in_ms << " millisecond(s)\n";
 	if(duration_in_ms >= 1000 && duration_in_ms < 60000)
-		cout << "Total time elapsed: " << duration_in_ms / 1000.0 << " second(s)\n";
+		std::cout << "Total time elapsed: " << duration_in_ms / 1000.0 << " second(s)\n";
 	if(duration_in_ms >= 60000)
-		cout << "Total time elapsed: " << duration_in_ms / 60000.0 << " minute(s)\n";
-	cout << "------------------------------------\n";
-	cout << "File uploaded from: " << local_file_location << "\n";
-	cout << "File uploaded to  : " << remote_file_location << "\n";
-	cout << "------------------------------------\n";
+		std::cout << "Total time elapsed: " << duration_in_ms / 60000.0 << " minute(s)\n";
+	std::cout << "------------------------------------\n";
+	std::cout << "File uploaded from: " << local_file_location << "\n";
+	std::cout << "File uploaded to  : " << remote_file_location << "\n";
+	std::cout << "------------------------------------\n";
 }
 
 // convert string to LPCWSTR
-wstring s2_ws(const string& s)
+std::wstring s2_ws(const std::string& s)
 {
 	const auto slength = static_cast<int>(s.length()) + 1;
 	const auto len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, nullptr, 0);
 	const auto buf = new wchar_t[len];
     MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
-    wstring r(buf);
+	std::wstring r(buf);
     delete[] buf;
     return r;
 }
 
 // Format: 'L"Speak whatever is written here"'
-bool text_to_speech(const string& input_text)
+bool text_to_speech(const std::string& input_text)
 {
 	auto stemp = s2_ws(input_text);
 	const auto sentence = stemp.c_str();
@@ -443,12 +441,12 @@ int main()
 
 ninput stands for number input.
 */
-string sinput(const char to_display = '*', const bool show_asterisk = false)
+std::string sinput(const char to_display = '*', const bool show_asterisk = false)
 {
 	const char backspace_key = 8;
 	const char enter_key = 13;
 
-	string sinput_field;
+	std::string sinput_field;
 	unsigned char ch = 0;
 
 	DWORD con_mode;
@@ -465,7 +463,7 @@ string sinput(const char to_display = '*', const bool show_asterisk = false)
 		{
 			if (sinput_field.length() != 0)
 			{
-				cout << "\b \b";
+				std::cout << "\b \b";
 				sinput_field.resize(sinput_field.length() - 1);
 			}
 		}
@@ -473,12 +471,12 @@ string sinput(const char to_display = '*', const bool show_asterisk = false)
 		{
 			sinput_field += ch;
 			if (show_asterisk)
-				cout << to_display;
+				std::cout << to_display;
 			else
-				cout << ch;
+				std::cout << ch;
 		}
 	}
-	cout << "\n";
+	std::cout << "\n";
 	return sinput_field;
 }
 
@@ -502,7 +500,7 @@ double ninput(const char to_display = '*', const bool show_asterisk = false)
 	const char backspace_key = 8;
 	const char enter_key = 13;
 
-	string sinput_field;
+	std::string sinput_field;
 	unsigned char ch = 0;
 
 	DWORD con_mode;
@@ -519,7 +517,7 @@ double ninput(const char to_display = '*', const bool show_asterisk = false)
 		{
 			if (sinput_field.length() != 0)
 			{
-				cout << "\b \b";
+				std::cout << "\b \b";
 				sinput_field.resize(sinput_field.length() - 1);
 			}
 		}
@@ -527,17 +525,17 @@ double ninput(const char to_display = '*', const bool show_asterisk = false)
 		{
 			sinput_field += ch;
 			if (show_asterisk)
-				cout << to_display;
+				std::cout << to_display;
 			else
-				cout << ch;
+				std::cout << ch;
 		}
 	}
-	cout << "\n";
+	std::cout << "\n";
 	return stod(sinput_field);
 }
 
 // Format: "string_analyzer_eng("Your string")"
-void string_analyzer_eng(string value)
+void string_analyzer_eng(std::string value)
 {
 	auto dsa_vowels = 0;
 	auto dsa_consonants = 0;
@@ -578,33 +576,33 @@ void string_analyzer_eng(string value)
 	}
 	if(dsa_vowels + dsa_consonants != dsa_uppercase_count + dsa_lowercase_count)
 	{
-		cout << "Something went wrong while analyzing!\n";
-		cout << "Error: 0001A, send this error code to your system administrator.\n";
-		cout << "\nPress q to end the program.";
+		std::cout << "Something went wrong while analyzing!\n";
+		std::cout << "Error: 0001A, send this error code to your system administrator.\n";
+		std::cout << "\nPress q to end the program.";
 		key_to_exit(200, 'q', 1, false);
 	} const auto dsa_letters = dsa_uppercase_count + dsa_lowercase_count;
-	cout << "-----------------\n";
-	cout << "Analyzed string  : " << value << "\n";
-	cout << "-----------------\n";
-	cout << "Vowels           : " << dsa_vowels << "\n";
-	cout << "Consonant        : " << dsa_consonants << "\n";
-	cout << "-----------------\n";
-	cout << "Uppercase letters: " << dsa_uppercase_count << "\n";
-	cout << "Lowercase letters: " << dsa_lowercase_count << "\n";
-	cout << "-----------------\n";
-	cout << "Letter           : " << dsa_letters << "\n";
-	cout << "Digit            : " << dsa_digits << "\n";
-	cout << "Special Character: " << dsa_symbols << "\n";
-	cout << "-----------------\n";
-	cout << "Length           : " << value.length() << "\n";
-	cout << "-----------------\n";
+	std::cout << "-----------------\n";
+	std::cout << "Analyzed string  : " << value << "\n";
+	std::cout << "-----------------\n";
+	std::cout << "Vowels           : " << dsa_vowels << "\n";
+	std::cout << "Consonant        : " << dsa_consonants << "\n";
+	std::cout << "-----------------\n";
+	std::cout << "Uppercase letters: " << dsa_uppercase_count << "\n";
+	std::cout << "Lowercase letters: " << dsa_lowercase_count << "\n";
+	std::cout << "-----------------\n";
+	std::cout << "Letter           : " << dsa_letters << "\n";
+	std::cout << "Digit            : " << dsa_digits << "\n";
+	std::cout << "Special Character: " << dsa_symbols << "\n";
+	std::cout << "-----------------\n";
+	std::cout << "Length           : " << value.length() << "\n";
+	std::cout << "-----------------\n";
 }
 
 // Format: 'ping_url("dumanstudios.com");'
-void ping_url(const string& url)
+void ping_url(const std::string& url)
 {
-	cout << "Pinging " << url;
-	cout << ", please wait..." << "\n";
+	std::cout << "Pinging " << url;
+	std::cout << ", please wait..." << "\n";
 	auto ping_command = "ping " + url;
 
 	system(ping_command.c_str());
@@ -623,10 +621,10 @@ void binary_to_decimal(__int64 binary_number)
 		decimal_value += last_digit*base;
 		base = base*2;
 	}
-	cout << decimal_value << "\n";
+	std::cout << decimal_value << "\n";
 }
 
-void to_clipboard(const string& s){
+void to_clipboard(const std::string& s){
 	OpenClipboard(nullptr);
 	EmptyClipboard();
 	const auto hg=GlobalAlloc(GMEM_MOVEABLE,s.size()+1);
@@ -642,7 +640,7 @@ void to_clipboard(const string& s){
 }
 
 // Format: ''
-int password_score(string value)
+int password_score(std::string value)
 {
 	auto dsa_vowels = 0;
 	auto dsa_consonants = 0;
@@ -724,10 +722,10 @@ int password_score(string value)
 }
 
 // Format: 'string password = password_generator(50, true, true);'
-string password_generator(const int length_of_password = 12, const bool enable_symbols = false, const bool copy_to_clipboard = false)
+std::string password_generator(const int length_of_password = 12, const bool enable_symbols = false, const bool copy_to_clipboard = false)
 {
-	vector<char> password;
-	srand (static_cast<unsigned int>(time(nullptr)));
+	std::vector<char> password;
+	srand (GetTickCount64());  // NOLINT(cert-msc32-c)
 
 	//generates lowercase letters
 	for(auto c = 1; c <= length_of_password; c = c + 4)
@@ -777,10 +775,10 @@ string password_generator(const int length_of_password = 12, const bool enable_s
 		}
 	}
 
-	random_device r;
-	shuffle(password.begin(), password.end(), default_random_engine(r()));
+	std::random_device r;
+	shuffle(password.begin(), password.end(), std::default_random_engine(r()));
 
-	string returning_password;
+	std::string returning_password;
 
 	for(auto i = 0; i < length_of_password; i++)
 	{
@@ -857,7 +855,7 @@ void hash256_block(RaIter1 message_digest, RaIter2 first, RaIter2 last) {
     assert(first + 64 == last);
     static_cast<void>(last);  // for avoiding unused-variable warning
     word_t w[64];
-    fill(w, w + 64, 0);
+    std::fill(w, w + 64, 0);
     for (size_t i = 0; i < 16; ++i) {
         w[i] = (static_cast<word_t>(mask_8_bit(*(first + i * 4))) << 24) |
                (static_cast<word_t>(mask_8_bit(*(first + i * 4 + 1))) << 16) |
@@ -906,51 +904,52 @@ void hash256_block(RaIter1 message_digest, RaIter2 first, RaIter2 last) {
 }  // namespace detail
 
 template <typename InIter>
-void output_hex(InIter first, InIter last, ostream& os) {
-    os.setf(ios::hex, ios::basefield);
+void output_hex(InIter first, InIter last, std::ostream& os) {
+    os.setf(std::ios::hex, std::ios::basefield);
     while (first != last) {
         os.width(2);
         os.fill('0');
         os << static_cast<unsigned int>(*first);
         ++first;
     }
-    os.setf(ios::dec, ios::basefield);
+    os.setf(std::ios::dec, std::ios::basefield);
 }
 
 template <typename InIter>
-void bytes_to_hex_string(InIter first, InIter last, string& hex_str) {
-    ostringstream oss;
+void bytes_to_hex_string(InIter first, InIter last, std::string& hex_str) {
+	std::ostringstream oss;
     output_hex(first, last, oss);
     hex_str.assign(oss.str());
 }
 
 template <typename InContainer>
-void bytes_to_hex_string(const InContainer& bytes, string& hex_str) {
+void bytes_to_hex_string(const InContainer& bytes, std::string& hex_str) {
     bytes_to_hex_string(bytes.begin(), bytes.end(), hex_str);
 }
 
 template <typename InIter>
-string bytes_to_hex_string(InIter first, InIter last) {
-    string hex_str;
+std::string bytes_to_hex_string(InIter first, InIter last) {
+    std::string hex_str;
     bytes_to_hex_string(first, last, hex_str);
     return hex_str;
 }
 
 template <typename InContainer>
-string bytes_to_hex_string(const InContainer& bytes) {
-    string hex_str;
+std::string bytes_to_hex_string(const InContainer& bytes) {
+    std::string hex_str;
     bytes_to_hex_string(bytes, hex_str);
     return hex_str;
 }
 
-class hash256_one_by_one {
+class hash256_one_by_one final
+{
    public:
     hash256_one_by_one() { init(); }
 
     void init() {
         buffer_.clear();
-        fill(data_length_digits_, data_length_digits_ + 4, 0);
-        copy(detail::initial_message_digest,
+        std::fill(data_length_digits_, data_length_digits_ + 4, 0);
+        std::copy(detail::initial_message_digest,
                   detail::initial_message_digest + 8, h_);
     }
 
@@ -968,17 +967,17 @@ class hash256_one_by_one {
 
     void finish() {
         byte_t temp[64];
-        fill(temp, temp + 64, 0);
+        std::fill(temp, temp + 64, 0);
 	    const auto remains = buffer_.size();
-        copy(buffer_.begin(), buffer_.end(), temp);
+        std::copy(buffer_.begin(), buffer_.end(), temp);
         temp[remains] = 0x80;
 
         if (remains > 55) {
-            fill(temp + remains + 1, temp + 64, 0);
+	        std::fill(temp + remains + 1, temp + 64, 0);
             detail::hash256_block(h_, temp, temp + 64);
-            fill(temp, temp + 64 - 4, 0);
+	        std::fill(temp, temp + 64 - 4, 0);
         } else {
-            fill(temp + remains + 1, temp + 64 - 4, 0);
+	        std::fill(temp + remains + 1, temp + 64 - 4, 0);
         }
 
         write_data_bit_length(&(temp[56]));
@@ -1012,7 +1011,7 @@ class hash256_one_by_one {
     }
     void write_data_bit_length(byte_t* begin) {
         word_t data_bit_length_digits[4];
-        copy(data_length_digits_, data_length_digits_ + 4,
+        std::copy(data_length_digits_, data_length_digits_ + 4,
                   data_bit_length_digits);
 
         // convert byte length to bit length (multiply 8 or shift 3 times left)
@@ -1032,20 +1031,21 @@ class hash256_one_by_one {
             (*begin++) = static_cast<byte_t>(data_bit_length_digits[i]);
         }
     }
-    vector<byte_t> buffer_;
+
+    std::vector<byte_t> buffer_;
     word_t data_length_digits_[4]{};  // as 64bit integer (16bit x 4 integer)
     word_t h_[8]{};
 };
 
 inline void get_hash_hex_string(const hash256_one_by_one& hasher,
-                                string& hex_str) {
+                                std::string& hex_str) {
     byte_t hash[k_digest_size];
     hasher.get_hash_bytes(hash, hash + k_digest_size);
     return bytes_to_hex_string(hash, hash + k_digest_size, hex_str);
 }
 
-inline string get_hash_hex_string(const hash256_one_by_one& hasher) {
-    string hex_str;
+inline std::string get_hash_hex_string(const hash256_one_by_one& hasher) {
+    std::string hex_str;
     get_hash_hex_string(hasher, hex_str);
     return hex_str;
 }
@@ -1053,7 +1053,7 @@ inline string get_hash_hex_string(const hash256_one_by_one& hasher) {
 namespace impl {
 template <typename RaIter, typename OutIter>
 void hash256_impl(RaIter first, RaIter last, OutIter first2, OutIter last2, int,
-                  random_access_iterator_tag) {
+                  std::random_access_iterator_tag) {
     hash256_one_by_one hasher;
     // hasher.init();
     hasher.process(first, last);
@@ -1063,8 +1063,8 @@ void hash256_impl(RaIter first, RaIter last, OutIter first2, OutIter last2, int,
 
 template <typename InputIter, typename OutIter>
 void hash256_impl(InputIter first, InputIter last, OutIter first2,
-                  OutIter last2, const int buffer_size, input_iterator_tag) {
-    vector<byte_t> buffer(buffer_size);
+                  OutIter last2, const int buffer_size, std::input_iterator_tag) {
+	std::vector<byte_t> buffer(buffer_size);
     hash256_one_by_one hasher;
     // hasher.init();
     while (first != last) {
@@ -1088,7 +1088,7 @@ void hash256(InIter first, InIter last, OutIter first2, OutIter last2,
              int buffer_size = DUMANSHA256_BUFFER_SIZE_FOR_INPUT_ITERATOR) {
     dumansha256::impl::hash256_impl(
         first, last, first2, last2, buffer_size,
-        typename iterator_traits<InIter>::iterator_category());
+        typename std::iterator_traits<InIter>::iterator_category());
 }
 
 template <typename InIter, typename OutContainer>
@@ -1107,32 +1107,32 @@ void hash256(const InContainer& src, OutContainer& dst) {
 }
 
 template <typename InIter>
-void hash256_hex_string(InIter first, InIter last, string& hex_str) {
+void hash256_hex_string(InIter first, InIter last, std::string& hex_str) {
     byte_t hashed[k_digest_size];
     hash256(first, last, hashed, hashed + k_digest_size);
-    ostringstream oss;
+    std::ostringstream oss;
     output_hex(hashed, hashed + k_digest_size, oss);
     hex_str.assign(oss.str());
 }
 
 template <typename InIter>
-string hash256_hex_string(InIter first, InIter last) {
-    string hex_str;
+std::string hash256_hex_string(InIter first, InIter last) {
+    std::string hex_str;
     hash256_hex_string(first, last, hex_str);
     return hex_str;
 }
 
-inline void hash256_hex_string(const string& src, string& hex_str) {
+inline void hash256_hex_string(const std::string& src, std::string& hex_str) {
     hash256_hex_string(src.begin(), src.end(), hex_str);
 }
 
 template <typename InContainer>
-void hash256_hex_string(const InContainer& src, string& hex_str) {
+void hash256_hex_string(const InContainer& src, std::string& hex_str) {
     hash256_hex_string(src.begin(), src.end(), hex_str);
 }
 
 template <typename InContainer>
-string hash256_hex_string(const InContainer& src) {
+std::string hash256_hex_string(const InContainer& src) {
     return hash256_hex_string(src.begin(), src.end());
 }
 
